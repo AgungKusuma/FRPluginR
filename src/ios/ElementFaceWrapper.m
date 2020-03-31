@@ -8,6 +8,95 @@
 
 @implementation ElementFaceWrapper
 
+// private method
+- (BOOL)configureSDK {
+    // TODO: update with your EAK
+    NSString *eak = @"EREREScM1QQfGBIcy9q6yyVysH6izIpDDkQJqgMitVVAxFTxDHf6Hn36OvfYNM9fajPXNo1K9sjFm58sjyiXhYdN4WOpiDOdT4jbdAUBz+4LKrNNpgU8Zfjzk+gIslNS0+ytyIZ8LXR+W1r7euIsWhkUuUQUSkQ+dkbeQAyyWHU2bx+eZS/Sow1QGKkPNNSpWbv7MsSl/bFBY1fohYW4L4m8TUyGbx6lScg8BT6w5K1nq6HRdLD8F1XWVN3Q7FUnFWypeqvQaBJMd/GyBTq9VqGzYUmJ1BUZx1M+SsZ/Gep/GzbLLYW30QN+9okHWdTE1cPdYJZmwNdainR3FcwfzjyuBBbBGK0+ZGWFUKBWWBzJBMEdi6e3+mwShVJTCb/tkIjWgHMVSZlabKrVizgtUUQT3YeGCLUKJhZNxuNhfotMOTBzzWXye+aKbp2tx7piK9u1/cVe/ryc54YOJPH5+xxTO85hAyh0OlVNjKuUibax9QVoQ5m4ljIBciwjo2D1rrdvycHErp6WEWgc7kegxEuAby9QQx8K3/3kxBC8d6yWAdalCLiadPIgjZoCLFV3HYfJ4IOrAjGHmmYKWbReeGnea0ir1u7BiQM+5LR43Zh3+3qYPFofzs+Wz0Y0Pc1HD7xamWqlXTZN/HwHb52s2z/MMDpK03NZ00OxJZX40jgPGdopaKckH9Ue10XyFU1qPqbGJ9nodz4d6FKTVd7f7zu13aTHsCFTlOFIeiKZ72TnaWgYOkttmAWGdrmImD6KKT1cDAqMi9tGMXBUNneuyKX4FBFInkDSs+x5Trzel7wmxWeLQIelpBMFdyIz/dT/RU0365CbA+h7lVMy7UwHeyaulxxYNAMLmKINQdXrUFyCseiRFGG/TLOOlNhe9gsr8AcHYEho7ymlX7M8T7bi19FJJ0bbD6McUcBgj129v/lbplmJE5khMil+QjxtK0TmSulGtNR3XHQlkODRxJisdIg0OY7XqsiCju4S2M3cqZ3h7VWJ/XSWbjtaGzlJcCAJAuSCxL6cqIcwfCPjTwT8WPjaE7gFFFF6pSNJGYWhGvcmNUak8Opu";
+    BOOL result = [[ElementSDKConfiguration shared] initializeWithConfigurationData:eak];
+    if (!result) {
+        NSLog(@"Error: ElementSDK configuration failed");
+        return NO;
+    }
+    [ElementSDKConfiguration shared].uploadImages = NO;
+    [ElementSDKConfiguration shared].geolocateUser = NO;
+    [ElementSDKConfiguration shared].theme = ELTUIThemeFlowerPetals;
+    [ElementSDKConfiguration shared].customTheme.backgroundColor = [UIColor colorWithRed:0.949 green:0.502 blue:0.094 alpha:1.0];
+    return YES;
+}
+
+- (void)enroll:(CDVInvokedUrlCommand *)command {
+    NSLog(@"enroll");
+    if (![ElementSDKConfiguration shared].isConfigured) {
+        NSLog(@"configuration needed");
+        BOOL configureResult = [self configureSDK];
+        if (!configureResult) {
+            CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"Element SDK configuration failed (see logs)"];
+            [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+            return;
+        }
+    }
+    [ElementSDKConfiguration shared].faceAntiSpoofingType = ELTFaceAntiSpoofingGaze;
+    RemoteFaceAuthenticationViewController *vc = [[RemoteFaceAuthenticationViewController alloc] initWithAsyncVerifyBlock:^(NSArray<CornerImage *> *  images, NSNumber *  latitude, NSNumber *  longitude, FaceMatchingResultBlock   resultCallBack) {
+        NSLog(@"got the images");
+        NSMutableArray *arr = [NSMutableArray new];
+        for (CornerImage *img in images) {
+            NSString *singleImage = [img.data base64EncodedStringWithOptions:0];
+            [arr addObject:singleImage];
+        }
+        FaceMatchingResult *res = [FaceMatchingResult new];
+        res.verified = YES;
+        resultCallBack(res);
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:arr];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    } onAuthentication:^(UIViewController * viewController, CGFloat confidenceScore) {
+        NSLog(@"enrolled, dismiss the view controller");
+        [viewController dismissViewControllerAnimated:YES completion:nil];
+    } onCancel:^(UIViewController * viewController) {
+        NSLog(@"user cancelled, dismiss the view controller");
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"User cancelled"];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        [viewController dismissViewControllerAnimated:YES completion:nil];
+    }];
+    vc.showAuthenticationSuccessScreen = NO;
+    [[self viewController] presentViewController:vc animated:YES completion:nil];
+}
+
+- (void)match:(CDVInvokedUrlCommand *)command {
+    NSLog(@"match (auth)");
+    if (![ElementSDKConfiguration shared].isConfigured) {
+        NSLog(@"configuration needed");
+        BOOL configureResult = [self configureSDK];
+        if (!configureResult) {
+            CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"Element SDK configuration failed (see logs)"];
+            [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+            return;
+        }
+    }
+    [ElementSDKConfiguration shared].faceAntiSpoofingType = ELTFaceAntiSpoofingPassive;
+    RemoteFaceAuthenticationViewController *vc = [[RemoteFaceAuthenticationViewController alloc] initWithAsyncVerifyBlock:^(NSArray<CornerImage *> *  images, NSNumber *  latitude, NSNumber *  longitude, FaceMatchingResultBlock   resultCallBack) {
+        NSString *singleImage = @"";
+        for (CornerImage *img in images) {
+            singleImage = [img.data base64EncodedStringWithOptions:0];
+            break;
+        }
+        FaceMatchingResult *res = [FaceMatchingResult new];
+        res.verified = YES;
+        resultCallBack(res);
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:singleImage];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    } onAuthentication:^(UIViewController * viewController, CGFloat confidenceScore) {
+        [viewController dismissViewControllerAnimated:YES completion:nil];
+    } onCancel:^(UIViewController * viewController) {
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"User cancelled"];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        [viewController dismissViewControllerAnimated:YES completion:nil];
+    }];
+    vc.showAuthenticationSuccessScreen = NO;
+    [[self viewController] presentViewController:vc animated:YES completion:nil];
+}
+
+// Below is old code
+#if 0
 - (void)authenticate:(CDVInvokedUrlCommand *)command {
     NSLog(@"authenticate");
     [ElementSDKConfiguration shared].faceAntiSpoofingType = ELTFaceAntiSpoofingGaze;
@@ -473,5 +562,6 @@
         [[self viewController] presentViewController:faceId animated:YES completion:nil];
     }
 }
+#endif
 
 @end
