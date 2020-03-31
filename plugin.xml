@@ -49,4 +49,37 @@
 
     </platform>
 
+    <platform name="ios">
+        <config-file parent="/*" target="config.xml">
+            <feature name="ElementFaceMatchingSDK">
+                <param name="ios-package" value="ElementFaceWrapper" />
+            </feature>
+        </config-file>
+        <config-file target="*-Info.plist" parent="NSCameraUsageDescription">
+            <string>use camera</string>
+        </config-file>
+        <config-file target="*-Info.plist" parent="NSLocationWhenInUseUsageDescription">
+            <string>use location</string>
+        </config-file>
+        <!--
+<edit-config target="NSCameraUsageDescription" file="*-Info.plist" mode="merge">
+    <string>use camera</string>
+</edit-config>
+<edit-config target="NSLocationWhenInUseUsageDescription" file="*-Info.plist" mode="merge">
+    <string>location</string>
+</edit-config>
+-->
+        <header-file src="src/ios/ElementFaceWrapper.h" />
+        <source-file src="src/ios/ElementFaceWrapper.m" />
+
+        <framework src="src/ios/ElementSDK.framework" custom="true" embed="true" />
+        <resource-file src="src/ios/ThemeBundles/CountdownBlue.bundle" />
+        <resource-file src="src/ios/ThemeBundles/CountdownBlueGreen.bundle" />
+        <resource-file src="src/ios/ThemeBundles/CountdownDefault.bundle" />
+        <resource-file src="src/ios/ThemeBundles/CountdownYellow.bundle" />
+        <resource-file src="src/ios/ThemeBundles/FlowerPetals.bundle" />
+        <resource-file src="src/ios/ThemeBundles/LegacyCountdown.bundle" />
+        <resource-file src="src/ios/LocalProcessing.bundle" />
+    </platform>
+
 </plugin>

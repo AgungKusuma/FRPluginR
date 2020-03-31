@@ -1,0 +1,6 @@
+framework module ElementSDK {
+  umbrella header "ElementSDK.h"
+
+  export *
+  module * { export * }
+}
