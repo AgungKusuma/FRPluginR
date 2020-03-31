@@ -38,15 +38,16 @@
     [ElementSDKConfiguration shared].faceAntiSpoofingType = ELTFaceAntiSpoofingGaze;
     RemoteFaceAuthenticationViewController *vc = [[RemoteFaceAuthenticationViewController alloc] initWithAsyncVerifyBlock:^(NSArray<CornerImage *> *  images, NSNumber *  latitude, NSNumber *  longitude, FaceMatchingResultBlock   resultCallBack) {
         NSLog(@"got the images");
-        NSMutableArray *arr = [NSMutableArray new];
+        NSString *singleImage = @"";
         for (CornerImage *img in images) {
-            NSString *singleImage = [img.data base64EncodedStringWithOptions:0];
-            [arr addObject:singleImage];
+            singleImage = [img.data base64EncodedStringWithOptions:0];
+            NSLog(@"return the 1st image");
+            break;
         }
         FaceMatchingResult *res = [FaceMatchingResult new];
         res.verified = YES;
         resultCallBack(res);
-        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:arr];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:singleImage];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     } onAuthentication:^(UIViewController * viewController, CGFloat confidenceScore) {
         NSLog(@"enrolled, dismiss the view controller");
@@ -76,6 +77,7 @@
     RemoteFaceAuthenticationViewController *vc = [[RemoteFaceAuthenticationViewController alloc] initWithAsyncVerifyBlock:^(NSArray<CornerImage *> *  images, NSNumber *  latitude, NSNumber *  longitude, FaceMatchingResultBlock   resultCallBack) {
         NSString *singleImage = @"";
         for (CornerImage *img in images) {
+            NSLog(@"return the 1st image");
             singleImage = [img.data base64EncodedStringWithOptions:0];
             break;
         }
