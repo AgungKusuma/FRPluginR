@@ -3,7 +3,7 @@
         id="element-face-matching-sdk"
         version="1.1.0">
     <name>Element</name>
-    <description>Cordova Android Plugin for Element Face Matching</description>
+    <description>Cordova Android / iOS Plugin for Element Face Matching</description>
 
     <js-module src="www/element.js" name="device">
         <clobbers target="element" />
