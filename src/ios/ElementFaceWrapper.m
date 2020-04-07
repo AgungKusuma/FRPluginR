@@ -30,7 +30,8 @@
         NSLog(@"configuration needed");
         BOOL configureResult = [self configureSDK];
         if (!configureResult) {
-            CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"Element SDK configuration failed (see logs)"];
+            NSLog(@"SDK configuration error (CDVCommandStatus_ERROR)");
+            CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Element SDK configuration failed (see logs)"];
             [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
             return;
         }
@@ -47,14 +48,15 @@
         FaceMatchingResult *res = [FaceMatchingResult new];
         res.verified = YES;
         resultCallBack(res);
+        NSLog(@"returning the image CDVCommandStatus_OK");
         CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:singleImage];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     } onAuthentication:^(UIViewController * viewController, CGFloat confidenceScore) {
         NSLog(@"enrolled, dismiss the view controller");
         [viewController dismissViewControllerAnimated:YES completion:nil];
     } onCancel:^(UIViewController * viewController) {
-        NSLog(@"user cancelled, dismiss the view controller");
-        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"User cancelled"];
+        NSLog(@"user cancelled, dismiss the view controller (CDVCommandStatus_ERROR)");
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"User cancelled"];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         [viewController dismissViewControllerAnimated:YES completion:nil];
     }];
@@ -68,7 +70,8 @@
         NSLog(@"configuration needed");
         BOOL configureResult = [self configureSDK];
         if (!configureResult) {
-            CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"Element SDK configuration failed (see logs)"];
+            NSLog(@"SDK configuration error (CDVCommandStatus_ERROR)");
+            CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Element SDK configuration failed (see logs)"];
             [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
             return;
         }
@@ -84,12 +87,15 @@
         FaceMatchingResult *res = [FaceMatchingResult new];
         res.verified = YES;
         resultCallBack(res);
-        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:singleImage];
+        NSLog(@"returning the image CDVCommandStatus_OK");
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:singleImage];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     } onAuthentication:^(UIViewController * viewController, CGFloat confidenceScore) {
+        NSLog(@"matched, dismiss the view controller");
         [viewController dismissViewControllerAnimated:YES completion:nil];
     } onCancel:^(UIViewController * viewController) {
-        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"User cancelled"];
+        NSLog(@"user cancelled, dismiss the view controller (CDVCommandStatus_ERROR)");
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"User cancelled"];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         [viewController dismissViewControllerAnimated:YES completion:nil];
     }];
