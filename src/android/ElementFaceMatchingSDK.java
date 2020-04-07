@@ -112,6 +112,7 @@ public class ElementFaceMatchingSDK extends CordovaPlugin {
 		Intent intent = new Intent(activity, ElementCordovaFaceCaptureActivity.class);
 		intent.putExtra(ElementCordovaFaceCaptureActivity.EXTRA_ELEMENT_USER_ID, userId);
         intent.putExtra("ELEMENT_NAME", "");
+		intent.putExtra("MATCHING_TYPE", "original");
 		intent.putExtra(ElementCordovaFaceCaptureActivity.EXTRA_USER_APP_ID, cordova.getActivity().getPackageName());
 		cordova.startActivityForResult(this, intent, MATCHING_REQ_CODE);
 	}

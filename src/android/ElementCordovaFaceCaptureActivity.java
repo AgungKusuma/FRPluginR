@@ -29,6 +29,15 @@ public class ElementCordovaFaceCaptureActivity extends ElementFaceCaptureActivit
 	protected void onCreate(Bundle bundle) {
 		super.onCreate(bundle);
 		// defaults return if finish() without setResults()
+		try{
+			Bundle extras = getIntent().getExtras();
+			String matchingType = extras.getString("MATCHING_TYPE", "");
+			if(matchingType.equals("original")){
+				getIntent().putExtra(EXTRA_FACE_MODE, "original");
+			}
+		} catch (NullPointerException e){
+			e.printStackTrace();
+		}
 		message = "User cancelled.";
 	}
 
