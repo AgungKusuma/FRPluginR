@@ -1,6 +1,6 @@
 {
   "name": "element-face-matching-sdk",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Cordova Android and iOS Plugin for Element Face",
   "cordova": {
     "id": "cordova-element-face-matching-sdk",
