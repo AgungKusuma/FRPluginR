@@ -11,7 +11,8 @@
 - (void)getSdkVersion:(CDVInvokedUrlCommand *)command {
     CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:[ElementSDKConfiguration shared].sdkVersion];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-    
+}
+  
 // private method
 - (BOOL)configureSDK {
     // TODO: update with your EAK
