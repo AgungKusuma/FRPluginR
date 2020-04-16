@@ -68,6 +68,11 @@ public class ElementFaceMatchingSDK extends CordovaPlugin {
 	    return true;
 	}
 
+	private boolean doGetSdkVersion() throws JSONException {
+        handleGetSdkVersion();
+	    return true;
+	}
+	
 	// called from element.js
 	@Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
@@ -79,8 +84,9 @@ public class ElementFaceMatchingSDK extends CordovaPlugin {
     		handlePermissionAction();
     		return false;
 		}
-
-		if(action.equals("match")){
+		if (action.equals("getSdkVersion")) {
+			return doGetSdkVersion();
+		}else if(action.equals("match")){
 			return doMatching(args);
 		}else if(action.equals("enroll")){
 			return doEnroll(args);
@@ -96,6 +102,14 @@ public class ElementFaceMatchingSDK extends CordovaPlugin {
 		}
 	}
 
+	private void handleGetSdkVersion() {
+		// get the SDK version
+		// hardcode for now element-fm-sdk-v1.1.9
+		// according to Charlie, can't get the version programmatically
+		String sdkVersion = "1.2.1";
+		latestCallback.success(sdkVersion);
+	}
+	
 	private void handleCreateActionForEnroll(String userId, String name) {
 	    Activity activity = cordova.getActivity();
 
